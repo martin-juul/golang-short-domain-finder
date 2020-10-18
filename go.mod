@@ -1,5 +1,5 @@
-module github.com/fyxme/domain-name-checker
+module github.com/martin-juul/domain-name-checker
 
-go 1.12
+go 1.15
 
-require github.com/likexian/whois-go v0.0.0-20190627090909-384b3df3fc49 // indirect
+require github.com/likexian/whois-go v0.0.0-20190627090909-384b3df3fc49
