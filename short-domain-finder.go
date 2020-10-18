@@ -4,20 +4,21 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/likexian/whois-go"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/likexian/whois-go"
 )
 
 const (
-	UNREGISTERED_DOMAIN_REGEX = "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri|^Invalid query or domain name not known in"
-    LEN_ALPHABET = 26
+	UnregisteredDomainRegex = "^No match|^NOT FOUND|^Not fo|AVAILABLE|^No Data Fou|has not been regi|No entri|^Invalid query or domain name not known in"
+	LenAlphabet             = 26
 )
 
 func whoisDomainLookup(domain string) (string, error) {
 	if domain == "" {
-		return "", errors.New("No domain provided to whoisDomainLookup function")
+		return "", errors.New("no domain provided to whoisDomainLookup function")
 	}
 
 	result, err := whois.Whois(domain)
@@ -32,13 +33,13 @@ func whoisDomainLookup(domain string) (string, error) {
 func isDomainAvailable(domain string) bool {
 	whoisResult, err := whoisDomainLookup(domain)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		_, err = fmt.Fprintln(os.Stderr, err)
 		return false
 	}
 
-	isAvailable, err := regexp.MatchString(UNREGISTERED_DOMAIN_REGEX, whoisResult)
+	isAvailable, err := regexp.MatchString(UnregisteredDomainRegex, whoisResult)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		_, err = fmt.Fprintln(os.Stderr, err)
 		return false
 	}
 
@@ -46,7 +47,7 @@ func isDomainAvailable(domain string) bool {
 }
 
 func getAlphabet() []byte {
-	p := make([]byte, LEN_ALPHABET)
+	p := make([]byte, LenAlphabet)
 	for i := range p {
 		p[i] = 'a' + byte(i)
 	}
@@ -63,7 +64,7 @@ func getPermutations(b byte, alphabet []byte) []string {
 	return r
 }
 
-func outputer(resultChan chan string, completed chan bool) {
+func writeLn(resultChan chan string, completed chan bool) {
 	for {
 		domain, ok := <-resultChan
 
@@ -116,13 +117,21 @@ func dispatcher(workerChan chan string, exts []string, maxLen int) {
 }
 
 func main() {
-	extsFlag := flag.String("exts", "tk,ml,ga,cf", "List of domain extensions (ie. .com, .io)") // gq is not supported for now...
+	extensionFlags := flag.String(
+		"exts",
+		"pw,xyz,dk,es",
+		"List of domain extensions (ie. .com, .io)",
+	) // gq is not supported for now...
 	lenFlag := flag.Int("len", 3, "Maximum length of domain name")
 	sepFlag := flag.String("sep", ",", "Char used to separate the list of domain extensions")
-	workersFlag := flag.Int("workers", 10, "Number of worker to query whois in parallel. Too many may overwhelm the service and get you blocked")
+	workersFlag := flag.Int(
+		"workers",
+		10,
+		"Number of worker to query whois in parallel. Too many may overwhelm the service and get you blocked",
+	)
 	flag.Parse()
 
-	exts := strings.Split(*extsFlag, *sepFlag)
+	exts := strings.Split(*extensionFlags, *sepFlag)
 	maxLen := *lenFlag
 	numOfWorkers := *workersFlag
 
@@ -131,7 +140,7 @@ func main() {
 	completed := make(chan bool, 10)
 
 	go dispatcher(workerChan, exts, maxLen)
-	go outputer(resultChan, completed)
+	go writeLn(resultChan, completed)
 
 	for i := 0; i < numOfWorkers; i++ {
 		go worker(workerChan, resultChan, completed)
@@ -142,6 +151,6 @@ func main() {
 	}
 
 	close(resultChan)
-	//wait until outputerService finishes
+	// wait until outputerService finishes
 	<-completed
 }
