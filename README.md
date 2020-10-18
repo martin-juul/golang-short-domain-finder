@@ -2,12 +2,12 @@
 
 This Golang program will attempt to find available short domains based on a few input parameters such as domain extension and maximum length of domain name
 
-This is usefull is you're trying to find short and unique domains.
-Particularly usefull for url shortener websites or finding a free subdomain with few letters.
+This is useful is you're trying to find short and unique domains.
+Particularly for url shortening websites or finding a free subdomain with few letters.
 
 This was originally created to find a short `.me` domain as a student since namecheap offers those.
 
-See todo section for a better way to do this
+See [TODO.md](/TODO.md) for a better way to do this
 
 ## Requirements
 
@@ -17,13 +17,12 @@ To install:
 
 `go get -u github.com/likexian/whois-go`
 
-
 ## Usage
 
 ```
 Usage of ./short-domain-finder:
   -exts string
-        List of domain extensions (ie. .com, .io) (default "tk,ml,ga,cf")
+        List of domain extensions (ie. .com, .io) (default "pw,xyz,dk,es")
   -len int
         Maximum length of domain name (default 3)
   -sep string
@@ -32,16 +31,13 @@ Usage of ./short-domain-finder:
         Number of worker to query whois in parallel. Too many may overwhelm the service and get you blocked (default 10)
 ```
 
-The error messages are printed to stderr so you can simply redirect valid names to a file as such:
+Errors are piped to STDERR, so it's safe to pipe output to a file like so:
 
-```
+```bash
 ./short-domain-finder > output.txt
 ```
 
+## Credits
 
-## TODO
-
-- Some domains don't seem to be supported such as gq with current whois server
-    - Potential fix: use a list of whois servers such as `https://github.com/whois-server-list/whois-server-list`
-- Add file input
-- A potentially better way to do this: do a dns lookup. If the name does not resolve to an ip, do a whois lookup
+- [https://github.com/fyxme/golang-short-domain-finder](https://github.com/fyxme/golang-short-domain-finder)
+- [https://github.com/likexian/whois-go](https://github.com/likexian/whois-go)
